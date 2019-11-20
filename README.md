@@ -371,6 +371,7 @@ channel.queueDeclare(QUEUE_NAME, durable, false, false, null);
 # 总结
 
 + [【原创】分布式之消息队列复习精讲](https://www.cnblogs.com/rjzheng/p/8994962.html) 
++ 
 
 
 
