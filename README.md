@@ -1,5 +1,3 @@
-
-
 # rabbitmq
 
 ## 1. 定义
@@ -370,7 +368,9 @@ channel.queueDeclare(QUEUE_NAME, durable, false, false, null);
 
 ​	`durable`用于设置是否启动消息持久化
 
+# 总结
 
++ [【原创】分布式之消息队列复习精讲](https://www.cnblogs.com/rjzheng/p/8994962.html) 
 
 
 
