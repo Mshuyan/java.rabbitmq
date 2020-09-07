@@ -38,6 +38,8 @@
 
 ### 3.1 安装
 
+#### 3.1.1 mac
+
 ```
 brew install rabbitmq
 ```
@@ -63,6 +65,10 @@ rabbitmq-server
 ```
 
 此时在浏览器输入`localhost:15672`即可访问rabbitmq控制台，管理员账号密码都是`guest`
+
+#### 3.1.2 ubuntu
+
+> 参见：https://wangxin1248.github.io/linux/2020/03/ubuntu-install-rabbitmq.html
 
 ### 3.2. 添加用户
 
@@ -367,6 +373,58 @@ channel.queueDeclare(QUEUE_NAME, durable, false, false, null);
 ```
 
 ​	`durable`用于设置是否启动消息持久化
+
+## 插件
+
+### 延时队列
+
+#### 安装
+
++ [下载对应版本插件](https://bintray.com/rabbitmq/community-plugins/rabbitmq_delayed_message_exchange) 
+
++ 放入rabbitmq得plugins目录下，如：
+
+  ```
+   /usr/lib/rabbitmq/lib/rabbitmq_server-3.6.12/plugins
+  ```
+
++ 启用
+
+  ```sh
+  $ rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+  ```
+
+#### 示例代码
+
++ 配置声明队列
+
+  ```java
+  @Bean
+  public CustomExchange webMsgDelayExchange() {
+      Map<String, Object> args = new HashMap<>(8);
+      args.put(RabbitMqConstants.EXCHANGE_X_DELAYED_TYPE, RabbitMqConstants.EXCHANGE_TYPE_DIRECT);
+      return new CustomExchange(RabbitMqConstants.WEB_MESSAGE_REMIND_QUEUE, RabbitMqConstants.EXCHANGE_TYPE_DELAY_MSG,true, false,args);
+  }
+  
+  @Bean
+  public Binding webMsgBinding() {
+      return BindingBuilder.bind(webMsgQueue()).to(webMsgDelayExchange()).with(RabbitMqConstants.WEB_MESSAGE_REMIND_QUEUE).noargs();
+  }
+  
+  @Bean
+  public Queue webMsgQueue() {
+      return new Queue(RabbitMqConstants.WEB_MESSAGE_REMIND_QUEUE);
+  }
+  ```
+
++ 发送延时消息
+
+  ```java
+  rabbitTemplate.convertAndSend(RabbitMqConstants.APP_MESSAGE_REMIND_EXCHANGE, RabbitMqConstants.APP_MESSAGE_REMIND_QUEUE, JSONArray.toJSONString(Collections.singletonList(messageVo)), mqMessage -> {
+      mqMessage.getMessageProperties().setHeader(RabbitMqConstants.X_DELAY_HEADER, finalDelayMs);
+      return mqMessage;
+  });
+  ```
 
 # 总结
 
